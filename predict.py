@@ -109,7 +109,7 @@ if __name__ == "__main__":
             help="inverse of regularization strength used in logistic regression.")
     parser.add_argument("--num-split", type=int, default=10,
             help="The number of re-shuffling & splitting for each train ratio.")
-    parser.add_argument("--feat_norm", type=bool, default=False,
+    parser.add_argument("--feat-norm", action='store_true',
             help="Whether normalizing feature vector, such that each vector has unit norm")
     args = parser.parse_args()
     logging.basicConfig(

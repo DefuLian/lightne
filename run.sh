@@ -13,12 +13,12 @@ b=1
 usage()
 {
   echo "Usage: run [-T=window -b=negative -d=dim --rank=rank 
-            --nname=network_name --lname=label_name  
-		    --ratio=ratio --max_iter= --gamma=gamma] input"
+            --nname=network-name --lname=label-name --feat-norm 
+		    --ratio=ratio --max-iter=max-iter --gamma=gamma] input"
   exit 2
 }
 
-PARSED_ARGUMENTS=$(getopt -a -n run -o T:b:d: --long nname:,lname:,max_iter:,gamma:,ratio:,rank: -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n run -o T:b:d: --long nname:,lname:,max-iter:,gamma:,ratio:,rank:,feat-norm -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   usage
@@ -33,10 +33,11 @@ do
     -d)       dim="$2"         ; shift 2 ;;
     --nname)  network_name="$2"; shift 2 ;;
 	--lname)  label_name="$2"  ; shift 2 ;;
-	--max_iter) max_iter="$2"  ; shift 2 ;;
+	--max-iter) max_iter="$2"  ; shift 2 ;;
 	--gamma)  gamma="$2"       ; shift 2 ;;
 	--ratio)  ratio="$2"       ; shift 2 ;;
 	--rank)   rank="$2"        ; shift 2 ;;
+	--feat-norm) feat_norm=true; shift 1 ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
     # If invalid options were passed, then getopt should have reported an error,
@@ -58,8 +59,14 @@ echo "max_iter     : $max_iter"
 echo "gamma        : $gamma"
 echo "ratio        : $ratio"
 echo "rank         : $rank"
+echo "feat-norm    : $feat_norm"
 echo "Parameters remaining are: $1"
 input=$1
 input_dir=$(dirname "${input}")
 output=$input_dir/embedding_2020.txt
-matlab -nosplash -nodesktop -r "run_hash('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank); exit"
+matlab -nodisplay -r "run_hash('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank); exit"
+if [ "$feat_norm" = true  ]; then
+python predict.py --C 1 --label $input --embedding $output --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1 --feat-norm
+else
+python predict.py --C 1 --label $input --embedding $output --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1
+fi
