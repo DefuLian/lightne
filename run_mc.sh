@@ -8,17 +8,19 @@ ratio=1
 rank=256
 T=10
 b=1
-
+tratio=1
+alg=binary
 
 usage()
 {
-  echo "Usage: run [-T=window -b=negative -d=dim --rank=rank 
+  echo "Usage: run_mc [-T=window -b=negative -d=dim --rank=rank 
             --nname=network-name --lname=label-name --feat-norm 
-		    --ratio=ratio --max-iter=max-iter --gamma=gamma] input"
+		    --ratio=subspace-ratio --max-iter=max-iter 
+			--gamma=gamma --train-ratio=tr --alg=algorithm] input"
   exit 2
 }
 
-PARSED_ARGUMENTS=$(getopt -a -n run -o T:b:d: --long nname:,lname:,max-iter:,gamma:,ratio:,rank:,feat-norm -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n run_mc -o T:b:d: --long nname:,lname:,max-iter:,gamma:,ratio:,rank:,train-ratio:,alg:,feat-norm -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   usage
@@ -37,6 +39,8 @@ do
 	--gamma)  gamma="$2"       ; shift 2 ;;
 	--ratio)  ratio="$2"       ; shift 2 ;;
 	--rank)   rank="$2"        ; shift 2 ;;
+	--train-ratio) tratio="$2" ; shift 2 ;;
+	--alg)    alg="$2"         ; shift 2 ;;
 	--feat-norm) feat_norm=true; shift 1 ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
@@ -53,18 +57,20 @@ fi
 echo "T            : $T"
 echo "b            : $b "
 echo "dim          : $dim"
-echo "network_name : $network_name"
-echo "label_name   : $label_name"
-echo "max_iter     : $max_iter"
+echo "network-name : $network_name"
+echo "label-name   : $label_name"
+echo "max-iter     : $max_iter"
 echo "gamma        : $gamma"
 echo "ratio        : $ratio"
 echo "rank         : $rank"
 echo "feat-norm    : $feat_norm"
+echo "train-ratio  : $tratio"
+echo "algorithm    : $alg"
 echo "Parameters remaining are: $1"
 input=$1
 input_dir=$(dirname "${input}")
-output=$input_dir/embedding_2020.txt
-matlab -nodisplay -r "run_hash('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank); exit"
+output=$input_dir/embedding_$alg.txt
+matlab -nodisplay -r "generate_code('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg'); exit"
 if [ "$feat_norm" = true  ]; then
 python predict.py --C 1 --label $input --embedding $output --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1 --feat-norm
 else

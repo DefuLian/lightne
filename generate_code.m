@@ -1,7 +1,10 @@
-function run_hash(input, output, varargin)
-[network_name, alg, others] = process_options(varargin, 'nn', 'network', 'alg', 'hash');
+function generate_code(input, output, varargin)
+[network_name, train_ratio, others] = process_options(varargin, 'nn', 'network', 'train_ratio', 1);
 load(input, '-mat', network_name)
 net = eval(network_name);
+if train_ratio<1
+    net = split_network(net, 'un', net);
+end
 B = network_hashing(net, others{:});
 n = length(net);
 dim = size(B,2);
