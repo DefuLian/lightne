@@ -2,9 +2,9 @@ function mat = deepwalk(network, varargin)
 [T, b, rank] = process_options(varargin, 'T',1, 'b', 1, 'rank', 1024);
 n = length(network);
 vol = sum(sum(network));
-d_rt = sqrt(sum(network)); d_rt(d_rt<eps) = 1;
+d_rt = sqrt(sum(network) - spdiags(network, 0)'); isolated_node_mask = d_rt<eps; d_rt(isolated_node_mask) = 1;
 D_rt_inv = spdiags(1./d_rt', 0, n, n);
-X = D_rt_inv * network * D_rt_inv;
+X = D_rt_inv * network * D_rt_inv; X(1:n+1:end) = isolated_node_mask;
 if T<4
     X_power = X;
     mat = X;
