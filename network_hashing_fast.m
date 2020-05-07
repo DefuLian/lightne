@@ -1,20 +1,16 @@
-function [B, Q, varargout] = network_hashing(net, varargin)
-[ratio, gamma, max_iter, dim, alg, num_codebooks, others] = process_options(varargin, 'ratio',1, ...
-    'gamma',0, 'max_iter', 50, 'dim', 128, 'alg', 'binary', 'M', -1);
-net = deepwalk(net, others{:});
+function [B, Q, varargout] = network_hashing_fast(net, U, S, V, varargin)
+[ratio, gamma, max_iter, alg, num_codebooks] = process_options(varargin, 'ratio',1, ...
+    'gamma',0, 'max_iter', 50, 'alg', 'binary', 'M', -1);
 if strcmp(alg, 'real')
-    [U, S, V] = svds(net, dim);
     B = U * diag(sqrt(diag(S)));
     Q = V * diag(sqrt(diag(S)));
 elseif strcmp(alg, 'binary')
-    [U, S, V] = svds(net, dim);
     B = proj_hamming_balance(U * S);
     M = net;
     Mt = net';
     prev_loss = inf;
     n = length(net);
     mtb = Mt * B;
-
     for iter=1:max_iter
         Q=proj_stiefel_manifold(mtb);
         if gamma>0
@@ -39,7 +35,8 @@ elseif strcmp(alg, 'binary')
         end
     end
 else
-    [B, Q, code, codebooks] = network_quantizer(net, 'dim', dim, 'M', num_codebooks, 'max_iter', max_iter, 'alg', alg);
+    [B, Q, code, codebooks] = network_quantizer_fast(net, U, S, V, ...
+        'dim', dim, 'M', num_codebooks, 'max_iter', max_iter, 'alg', alg);
     if nargout>2
         varargout{1} = code;
     end

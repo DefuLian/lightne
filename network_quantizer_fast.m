@@ -1,12 +1,12 @@
-function [V, Q, B, C] = network_quantizer(net, varargin)
+function [V, Q, B, C] = network_quantizer_fast(net, U, S, Q, varargin)
 warning('off','MATLAB:rankDeficientMatrix'); rng(10);
-[max_iter, dim, num_codebooks, alg, others] = process_options(varargin, 'max_iter', 50, 'dim', 128, ...
+[max_iter, num_codebooks, alg] = process_options(varargin, 'max_iter', 50, ...
     'M', -1, 'alg', 'joint');
+dim = size(U, 2);
 if num_codebooks < 0
     num_codebooks = dim / 8;
 end
 %net = deepwalk(net, others{:});
-[U, S, Q] = svds(net, dim);
 max_inner_iter = 10;
 if strcmp(alg, 'opq')
     Xtrain = U * S;
