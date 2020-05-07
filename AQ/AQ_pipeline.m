@@ -39,6 +39,8 @@ NITQ_OPQ = 100;
 if numel( NWORDS ) > 4,
     [CODES, CODEBOOKS, DISTORTIONS, R] = AQPQ_pipeline( ...
         X, NWORDS, NITQ_OPQ, NITS, N, V );
+    CODES = CODES{end};
+    CODEBOOKS = CODEBOOKS{end};
     return
 else
     R = eye( size(X,1) );

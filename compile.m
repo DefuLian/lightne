@@ -6,5 +6,5 @@ mex -largeArrayDims kmeans_iter_mex.cc
 cd ../..
 
 cd netsmf;
-mex -largeArrayDims deepwalk_mex.cc BinaryGraphWalker.cc WeightGraphWalker.cc GraphWalker.cc; 
+mex LDOPTIMFLAGS="$LDOPTIMFLAGS -fopenmp -O2" -lgomp -largeArrayDims deepwalk_mex.cc BinaryGraphWalker.cc WeightGraphWalker.cc GraphWalker.cc; 
 cd ..

@@ -24,7 +24,8 @@ if strcmp(alg, 'opq')
 elseif strcmp(alg, 'aq')
     Xtrain = U * S;
     [B, C, ~, Q_] = AQ_pipeline(Xtrain', 256*ones(num_codebooks,1), max_iter, 16);
-    B = B{end}; C=C{end}; C = cell2mat(C');
+    %B = B{end}; C=C{end}; 
+    C = cell2mat(C');
     V = decoder(B, C)';
     Q = Q * double(Q_);
 else
@@ -127,7 +128,7 @@ B = local_search(X, C, M, B);
 end
 
 function B = beam_search_(X, C, B, M, n)
-sub = 4;
+sub = min(4, M);
 N = size(X, 2);
 K = size(C, 2) / M;
 X = X - decoder(B, C);
@@ -137,7 +138,7 @@ idx = reshape(idx', sub*K, 1);
 C_ = C(:, idx);
 B_ = B(idx_, :);
 X = X + decoder(B_, C_);
-for i=1:N
+parfor i=1:N
     B_(:,i) = beam_search(X(:,i), C_, sub, n);
 end
 e1 = X - decoder(B_, C_); e1 = sum(e1.^2);

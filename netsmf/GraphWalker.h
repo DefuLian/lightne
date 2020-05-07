@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <mex.h>
+#include <cmath>
 
 #define print mexPrintf
 

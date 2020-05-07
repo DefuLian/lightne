@@ -19,9 +19,9 @@ function [ CODES, DISTORTIONS ] = AQ_encoding( X, CODEBOOKS, N, V )
 % --
 % Julieta
 
-if nargin < 4,
-    V = false;
-end
+%if nargin < 4,
+V = false;
+%end
 
 [~, n] = size( X );
 
@@ -40,9 +40,9 @@ cbsz = size( CODEBOOKS{1}, 2);
 
 % Create output variables.
 CODES       = zeros(M, n);
-if nargout > 1,
+%if nargout > 1,
     DISTORTIONS = zeros(n,1);
-end
+%end
 
 % Convert the codebooks to a single matrix.
 cbmat = cell2mat( CODEBOOKS' );
@@ -82,7 +82,7 @@ end
 
 % Loop through data to encode...
 % for i = 1:n,
-for i = 1:n,
+parfor i = 1:n,
     
     % The vector to encode.
     q = X(:, i);
@@ -175,9 +175,9 @@ for i = 1:n,
     % The best encoding found during the last iteration.
     CODES(:,i) = full2ordered( sort(best_encoding(:,1)) );
     % The distortion of such encoding.
-    if nargout > 1,
+    %if nargout > 1,
         DISTORTIONS(i) = didx(1) + q'*q;
-    end
+    %end
     
     if V && ~mod(i,10000),
         fprintf('Done with %d / %d; %.2f%%.\n', i, n, 100*i/n);

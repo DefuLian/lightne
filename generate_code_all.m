@@ -37,7 +37,7 @@ write_out(B, fullfile(filepath, strcat(sprintf('%s_%s',name, alg), ext)))
 end
 
 function write_out(B, output)
-[n,dim] = size(B,2);
+[n,dim] = size(B);
 fileid = fopen(output, 'w');
 fprintf(fileid, '%d %d\n', n, dim);
 fclose(fileid);

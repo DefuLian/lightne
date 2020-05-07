@@ -73,13 +73,13 @@ echo "Parameters remaining are: $@"
 input=$1
 input_dir=$(dirname "${input}")
 output=$input_dir/embedding.txt
-matlab -nodisplay -r "addpath(genpath('~/code/lightne')); generate_code('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'rank', $rank, 'train_ratio', $tratio, 'M', $M); exit"
+matlab -nodisplay -r "addpath(genpath('~/code/lightne')); generate_code_all('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'rank', $rank, 'train_ratio', $tratio, 'M', $M); exit"
 
 for f in $input_dir/*embed*.{txt,npy}
 do
-	if [ -f $f ] && [ ! -f $f.log ]; then 
+	if [ -f $f ]; then 
 		echo $f.log
-		python predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1 --feat-norm > $f.log 2>&1
-		python predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1 > $f.log 2>&1
+		python ~/code/lightne/predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9 --feat-norm > ${f}_fn.log 2>&1
+		python ~/code/lightne/predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9 > $f.log 2>&1
 	fi
 done

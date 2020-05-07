@@ -10,17 +10,18 @@ T=10
 b=1
 tratio=1
 alg=binary
+M=-1
 
 usage()
 {
-  echo "Usage: run_mc [-T=window -b=negative -d=dim --rank=rank 
+  echo "Usage: run_mc [-T=window -b=negative -d=dim -M=cbn --rank=rank 
             --nname=network-name --lname=label-name --feat-norm 
 		    --ratio=subspace-ratio --max-iter=max-iter 
 			--gamma=gamma --train-ratio=tr --alg=algorithm] input"
   exit 2
 }
 
-PARSED_ARGUMENTS=$(getopt -a -n run_mc -o T:b:d: --long nname:,lname:,max-iter:,gamma:,ratio:,rank:,train-ratio:,alg:,feat-norm -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n run_mc -o T:b:d:M: --long nname:,lname:,max-iter:,gamma:,ratio:,rank:,train-ratio:,alg:,feat-norm -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   usage
@@ -33,6 +34,7 @@ do
     -T)       T="$2"           ; shift 2 ;;
     -b)       b="$2"           ; shift 2 ;;
     -d)       dim="$2"         ; shift 2 ;;
+    -M)       M="$2"           ; shift 2 ;;
     --nname)  network_name="$2"; shift 2 ;;
 	--lname)  label_name="$2"  ; shift 2 ;;
 	--max-iter) max_iter="$2"  ; shift 2 ;;
@@ -57,6 +59,7 @@ fi
 echo "T            : $T"
 echo "b            : $b "
 echo "dim          : $dim"
+echo "cbn          : $M"
 echo "network-name : $network_name"
 echo "label-name   : $label_name"
 echo "max-iter     : $max_iter"
@@ -66,13 +69,13 @@ echo "rank         : $rank"
 echo "feat-norm    : $feat_norm"
 echo "train-ratio  : $tratio"
 echo "algorithm    : $alg"
-echo "Parameters remaining are: $1"
+echo "Parameters remaining are: $@"
 input=$1
 input_dir=$(dirname "${input}")
 output=$input_dir/embedding_$alg.txt
-matlab -nodisplay -r "generate_code('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg'); exit"
+matlab -nodisplay -r "addpath(genpath('./AQ')); generate_code('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M); exit"
 if [ "$feat_norm" = true  ]; then
-python predict.py --C 1 --label $input --embedding $output --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1 --feat-norm
+python predict.py --C 1 --label $input --matfile-variable-name $label_name --embedding $output --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9 --feat-norm
 else
-python predict.py --C 1 --label $input --embedding $output --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1
+python predict.py --C 1 --label $input --matfile-variable-name $label_name --embedding $output --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9
 fi

@@ -11,6 +11,7 @@ import numpy as np
 import scipy.io
 import argparse
 import logging
+import sys
 import scipy.sparse as sparse
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import ShuffleSplit
@@ -113,6 +114,7 @@ if __name__ == "__main__":
             help="Whether normalizing feature vector, such that each vector has unit norm")
     args = parser.parse_args()
     logging.basicConfig(
+            stream=sys.stdout,
             #filename="%s.log" % args.embedding, filemode="w", # uncomment this to log to file
             level=logging.INFO,
             format='%(asctime)s %(message)s') # include timestamp

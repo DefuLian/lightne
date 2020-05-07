@@ -36,7 +36,7 @@ elseif strcmp(alg, 'binary')
     end
 else
     [B, Q, code, codebooks] = network_quantizer_fast(net, U, S, V, ...
-        'dim', dim, 'M', num_codebooks, 'max_iter', max_iter, 'alg', alg);
+        'M', num_codebooks, 'max_iter', max_iter, 'alg', alg);
     if nargout>2
         varargout{1} = code;
     end
