@@ -1,12 +1,16 @@
 #pragma once
+#ifdef _WIN32
 #define _CRT_RAND_S
+#include <stdlib.h> 
+#define rand_r rand_s
+#endif
 #include <vector>
 #include <iostream>
 #include <string>
 #include <mex.h>
-#include <stdlib.h> 
+
 #define print mexPrintf
-#define rand_r rand_s
+
 //using VertexId = unsigned long; //uint32_t;
 using VertexId = mwIndex; //uint32_t;
 using EdgeId = mwIndex; //uint32_t;
