@@ -2,7 +2,7 @@ function [B, Q, varargout] = network_hashing(net, varargin)
 [ratio, gamma, max_iter, dim, alg, num_codebooks, is_g, others] = process_options(varargin, 'ratio',1, ...
     'gamma',0, 'max_iter', 50, 'dim', 128, 'alg', 'binary', 'M', -1, 'g', false);
 if is_g
-    [B, Q, varargout{1:nargout}] = network_hashing_g(net, 'ratio', ratio, 'gamma', gamma, 'max_iter', max_iter, 'dim', dim, 'alg', alg, 'M', num_codebooks);
+    [B, Q, varargout{1:(nargout-2)}] = network_hashing_g(net, 'ratio', ratio, 'gamma', gamma, 'max_iter', max_iter, 'dim', dim, 'alg', alg, 'M', num_codebooks);
 else
 M = deepwalk(net, others{:});
 if strcmp(alg, 'real')

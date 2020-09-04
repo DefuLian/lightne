@@ -1,5 +1,5 @@
 function mat = deepwalk(network, varargin)
-[T, b, rank] = process_options(varargin, 'T',1, 'b', 1, 'rank', 1024);
+[T, b, rank] = process_options(varargin, 'T',1, 'b', 1, 'rank', 256);
 n = length(network);
 vol = sum(sum(network));
 d_rt = sqrt(sum(network) - spdiags(network, 0)'); isolated_node_mask = d_rt<eps; d_rt(isolated_node_mask) = 1;
