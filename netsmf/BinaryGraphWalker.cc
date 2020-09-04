@@ -67,7 +67,7 @@ void BinaryGraphWalker::sampling(int round, int num_threads,
         std::string thread_name = std::string("machine_") + machine
             + std::string("_thread_") + std::to_string(this_thread); // + std::string("_time_") + std::to_string(time(0));
 
-        print("[thread %d] thread name is %s\n", this_thread, thread_name);
+        print("[thread %d] thread name is %s\n", this_thread, thread_name.c_str());
         unsigned seed = std::hash<std::string>{}(thread_name);
 
         std::vector<VertexPair> sampled_pairs;

@@ -29,9 +29,8 @@ elseif strcmp(alg, 'aq')
     V = decoder(B, C)';
     Q = Q * double(Q_);
 else
-Mt = net';
 prev_loss = inf;
-[B, C] = AQ(Q' * Mt, num_codebooks, max_inner_iter);
+[B, C] = AQ((net * Q)', num_codebooks, max_inner_iter);
 for iter=1:max_iter
     V = decoder(B, C)';
     curr_loss = loss_mf(net, V, Q);
@@ -40,9 +39,9 @@ for iter=1:max_iter
         break
     end
     prev_loss = curr_loss;
-    mtb = Mt * V;
+    mtb = (V' * net)';
     Q = proj_stiefel_manifold(mtb);
-    [B, C] = AQ(Q' * Mt, num_codebooks, max_inner_iter, B);
+    [B, C] = AQ((net * Q)', num_codebooks, max_inner_iter, B);
 end
 V = decoder(B, C)';
 end
@@ -50,16 +49,6 @@ curr_loss = loss_mf(net, V, Q);
 fprintf('The finall loss value: %.3f\n', curr_loss);
 end
 
-function W = proj_stiefel_manifold(A)
-%%% min_W |A - W|_F^2, s.t. W^T W = I
-[U, ~, V] = svd(A, 0);
-W = U * V.';
-end
-
-function val = loss_mf(net, P, Q)
-    val = sum(sum(net.^2)) - 2 * sum(sum((P.' * net) .* Q.')) + sum(sum((Q.' * Q) .* (P.' * P)));
-    val = val / 2;
-end
 
 function [B, C] = AQ(X, M, max_iter, B)
 K = 256;
@@ -138,7 +127,7 @@ idx = reshape(idx', sub*K, 1);
 C_ = C(:, idx);
 B_ = B(idx_, :);
 X = X + decoder(B_, C_);
-parfor i=1:N
+for i=1:N
     B_(:,i) = beam_search(X(:,i), C_, sub, n);
 end
 e1 = X - decoder(B_, C_); e1 = sum(e1.^2);

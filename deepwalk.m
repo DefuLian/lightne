@@ -18,9 +18,9 @@ if T<4
     ind = K>1;
     mat = sparse(I(ind), J(ind), log(K(ind)), n, n);
 else
-    [V, E] = eigs(X, rank, 'largestreal');
+    [V, E] = eigs(X, rank, 'largestreal', 'MaxIterations', n*10, 'Tolerance', eps);
     V = D_rt_inv * V;
-    E_f = spdiags(arrayfun(@(x) filter(x, T), spdiags(E)), 0, rank, rank);
+    E_f = diag(arrayfun(@(x) filter(x, T), diag(E)));
     Qt = E_f * V' * (vol / b);
     step_size = 1000;
     num_step = floor((n + step_size-1)/step_size);

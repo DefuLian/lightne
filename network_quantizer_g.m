@@ -1,12 +1,12 @@
-function [V, Q, B, C] = network_quantizer_fast(net, U, S, Q, varargin)
+function [V, Q, B, C] = network_quantizer_g(M_g, M_l, varargin)
 warning('off','MATLAB:rankDeficientMatrix'); rng(10);
-[max_iter, num_codebooks, alg] = process_options(varargin, 'max_iter', 50, ...
+[max_iter, dim, num_codebooks, alg, others] = process_options(varargin, 'max_iter', 50, 'dim', 128, ...
     'M', -1, 'alg', 'joint');
-dim = size(U, 2);
 if num_codebooks < 0
     num_codebooks = dim / 8;
 end
 %net = deepwalk(net, others{:});
+[U, S, Q] = gsvds(M_g, M_l, dim);
 max_inner_iter = 10;
 if strcmp(alg, 'opq')
     Xtrain = U * S;
@@ -30,22 +30,22 @@ elseif strcmp(alg, 'aq')
     Q = Q * double(Q_);
 else
 prev_loss = inf;
-[B, C] = AQ((net * Q)', num_codebooks, max_inner_iter);
+[B, C] = AQ((M_g \ (M_l * Q))', num_codebooks, max_inner_iter);
 for iter=1:max_iter
     V = decoder(B, C)';
-    curr_loss = loss_mf(net, V, Q);
+    curr_loss = loss_gmf(M_g, M_l, V, Q);
     fprintf('%3d iteration, loss %.3f\n', iter, curr_loss);
-    if abs(prev_loss - curr_loss) < 1e-6 * prev_loss 
+    if abs(prev_loss - curr_loss) < max(1e-6 * prev_loss, 1e-6) 
         break
     end
     prev_loss = curr_loss;
-    mtb = (V' * net)';
+    mtb = (V' / M_g * M_l)';
     Q = proj_stiefel_manifold(mtb);
-    [B, C] = AQ((net * Q)', num_codebooks, max_inner_iter, B);
+    [B, C] = AQ((M_g \ (M_l * Q))', num_codebooks, max_inner_iter, B);
 end
 V = decoder(B, C)';
 end
-curr_loss = loss_mf(net, V, Q);
+curr_loss = loss_gmf(M_g, M_l, V, Q);
 fprintf('The finall loss value: %.3f\n', curr_loss);
 end
 
@@ -117,7 +117,7 @@ B = local_search(X, C, M, B);
 end
 
 function B = beam_search_(X, C, B, M, n)
-sub = min(M, 4);
+sub = min(4, M);
 N = size(X, 2);
 K = size(C, 2) / M;
 X = X - decoder(B, C);

@@ -73,9 +73,9 @@ echo "Parameters remaining are: $@"
 input=$1
 input_dir=$(dirname "${input}")
 output=$input_dir/embedding_$alg.txt
-matlab -nodisplay -r "addpath(genpath('./AQ')); generate_code('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M); exit"
+matlab -nodisplay -r "addpath(genpath('~/code/lightne')); generate_code('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M); exit"
 if [ "$feat_norm" = true  ]; then
-python predict.py --C 1 --label $input --matfile-variable-name $label_name --embedding $output --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9 --feat-norm
+python ~/code/lightne/predict.py --C 1 --label $input --matfile-variable-name $label_name --embedding $output --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1 --feat-norm
 else
-python predict.py --C 1 --label $input --matfile-variable-name $label_name --embedding $output --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9
+python ~/code/lightne/predict.py --C 1 --label $input --matfile-variable-name $label_name --embedding $output --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1
 fi

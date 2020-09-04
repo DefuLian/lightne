@@ -1,4 +1,4 @@
-function [B, Q, varargout] = network_hashing_fast(net, U, S, V, varargin)
+function [B, Q, varargout] = network_hashing_fast(M, U, S, V, varargin)
 [ratio, gamma, max_iter, alg, num_codebooks] = process_options(varargin, 'ratio',1, ...
     'gamma',0, 'max_iter', 50, 'alg', 'binary', 'M', -1);
 if strcmp(alg, 'real')
@@ -6,11 +6,9 @@ if strcmp(alg, 'real')
     Q = V * diag(sqrt(diag(S)));
 elseif strcmp(alg, 'binary')
     B = proj_hamming_balance(U * S);
-    M = net;
-    Mt = net';
     prev_loss = inf;
-    n = length(net);
-    mtb = Mt * B;
+    n = length(M);
+    mtb = (B' * M)';
     for iter=1:max_iter
         Q=proj_stiefel_manifold(mtb);
         if gamma>0
@@ -18,7 +16,7 @@ elseif strcmp(alg, 'binary')
         else
             B_h = zeros(size(B));
         end
-        curr_loss = loss_mf(net, B, Q) + gamma/2*sum(sum((B-B_h).^2));
+        curr_loss = loss_mf(M, B, Q) + gamma/2*sum(sum((B-B_h).^2));
         fprintf('%3d iteration, loss %.3f\n', iter, curr_loss);
         if abs(prev_loss - curr_loss) < 1e-6 * prev_loss
             break
@@ -27,15 +25,15 @@ elseif strcmp(alg, 'binary')
         if ratio<1
             s = select(sum(Q.* mtb),ratio);
             B1 = proj_hamming_balance(M*Q(:,s)+gamma*B_h(:,s));
-            mtb(:,s) = mtb(:,s) + Mt * (B1-B(:,s));
+            mtb(:,s) = mtb(:,s) + ((B1-B(:,s))' * M)';
             B(:,s) = B1;
         else
             B=proj_hamming_balance(M*Q+gamma*B_h);
-            mtb=Mt*B;
+            mtb = (B' * M)';
         end
     end
 else
-    [B, Q, code, codebooks] = network_quantizer_fast(net, U, S, V, ...
+    [B, Q, code, codebooks] = network_quantizer_fast(M, U, S, V, ...
         'M', num_codebooks, 'max_iter', max_iter, 'alg', alg);
     if nargout>2
         varargout{1} = code;
@@ -46,10 +44,7 @@ else
 end
 end
 
-function val = loss_mf(net, P, Q)
-    val = sum(sum(net.^2)) - 2 * sum(sum((P.' * net) .* Q.')) + sum(sum((Q.' * Q) .* (P.' * P)));
-    val = val / 2;
-end
+
 function s = select(b, ratio)
 k=length(b);
 d = floor(k*ratio);
@@ -59,16 +54,6 @@ s = false(k,1);
 s(ind) = true;
 end
 
-function B = proj_hamming_balance(X)
-    n = size(X, 1);
-    c = median(X);
-    B = (X - repmat(c, n, 1) >  0) * 2 - 1;
-end
-function W = proj_stiefel_manifold(A)
-%%% min_W |A - W|_F^2, s.t. W^T W = I
-[U, ~, V] = svd(A, 0);
-W = U * V.';
-end
 
 
 

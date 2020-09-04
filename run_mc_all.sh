@@ -79,7 +79,10 @@ for f in $input_dir/*embed*.{txt,npy}
 do
 	if [ -f $f ]; then 
 		echo $f.log
-		python ~/code/lightne/predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9 --feat-norm > ${f}_fn.log 2>&1
-		python ~/code/lightne/predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9 > $f.log 2>&1
+		#python ~/code/lightne/predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9 --feat-norm > ${f}_fn.log 2>&1
+		#python ~/code/lightne/predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 10 --stop-train-ratio 90 --num-train-ratio 9 > $f.log 2>&1
+		python ~/code/lightne/predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 1 --stop-train-ratio 9 --num-train-ratio 9 --feat-norm > ${f}_fn.log 2>&1
+		python ~/code/lightne/predict.py --C 1 --label $input --embedding $f --seed 10 --start-train-ratio 1 --stop-train-ratio 9 --num-train-ratio 9 > $f.log 2>&1
+
 	fi
 done

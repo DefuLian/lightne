@@ -82,7 +82,7 @@ end
 
 % Loop through data to encode...
 % for i = 1:n,
-parfor i = 1:n,
+for i = 1:n,
     
     % The vector to encode.
     q = X(:, i);
