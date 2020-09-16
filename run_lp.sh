@@ -11,16 +11,17 @@ tratio=1
 alg=binary
 M=-1
 out=false
+gmf=false
 usage()
 {
   echo "Usage: run_lp [-T=window -b=negative -d=dim -M=cbn --rank=rank 
-            --nname=network-name --out
+            --nname=network-name --out --gmf
 		    --ratio=subspace-ratio --max-iter=max-iter 
 			--gamma=gamma --train-ratio=tr --alg=algorithm] input"
   exit 2
 }
 
-PARSED_ARGUMENTS=$(getopt -a -n run_lp -o T:b:d:M: --long nname:,max-iter:,gamma:,ratio:,rank:,train-ratio:,alg:,out -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n run_lp -o T:b:d:M: --long nname:,max-iter:,gamma:,ratio:,rank:,train-ratio:,alg:,out,gmf -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   usage
@@ -42,6 +43,7 @@ do
 	--train-ratio) tratio="$2" ; shift 2 ;;
 	--alg)    alg="$2"         ; shift 2 ;;
 	--out)    out=true         ; shift 1 ;;
+        --gmf)    gmf=true         ; shift 1 ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
     # If invalid options were passed, then getopt should have reported an error,
@@ -64,6 +66,7 @@ echo "ratio        : $ratio"
 echo "rank         : $rank"
 echo "train-ratio  : $tratio"
 echo "algorithm    : $alg"
+echo "gmf          : $gmf"
 echo "output to file: $out"
 echo "Parameters remaining are: $@"
 input=$1
@@ -71,11 +74,11 @@ input_dir=$(dirname "${input}")
 
 if [ "$out" = true  ]; then
 output=$input_dir/lp_result_$alg.mat
-echo "addpath(genpath('./AQ')); evaluate_lp('$input', 'output', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M); exit"
-matlab -nodisplay -r "addpath(genpath('./AQ')); evaluate_lp('$input', 'output', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M); exit"
+echo "addpath(genpath('./AQ')); evaluate_lp('$input', 'output', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M, 'g', $gmf); exit"
+matlab -nodisplay -r "addpath(genpath('./AQ')); evaluate_lp('$input', 'output', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M, 'g', $gmf); exit"
 else
-echo "addpath(genpath('./AQ')); evaluate_lp('$input', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M); exit"
-matlab -nodisplay -r "addpath(genpath('./AQ')); evaluate_lp('$input', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M); exit"
+echo "addpath(genpath('./AQ')); evaluate_lp('$input', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M, 'g', $gmf); exit"
+matlab -nodisplay -r "addpath(genpath('./AQ')); evaluate_lp('$input', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M, 'g', $gmf); exit"
 fi
 
 

@@ -126,4 +126,5 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 	delete[] cmhist;
 	delete[] cmhist_backup;
 	delete[] res;
+	delete[] res_backup;
 }

@@ -1,6 +1,8 @@
 function [B, Q, varargout] = network_hashing_g(net, varargin)
 [ratio, gamma, max_iter, dim, alg, num_codebooks, beta, others] = process_options(varargin, 'ratio',1, ...
-    'gamma',0, 'max_iter', 50, 'dim', 128, 'alg', 'binary', 'M', -1, 'beta', 0.1);
+    'gamma',0, 'max_iter', 50, 'dim', 128, 'alg', 'binary', 'M', -1, 'beta', 0.05);
+beta=gamma;
+gamma=1;
 M_g = 1/beta * speye(size(net)) - net;
 M_l = net;
 if strcmp(alg, 'real')

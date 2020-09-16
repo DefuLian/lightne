@@ -11,17 +11,18 @@ b=1
 tratio=1
 alg=binary
 M=-1
+gmf=false
 
 usage()
 {
   echo "Usage: run_mc [-T=window -b=negative -d=dim -M=cbn --rank=rank 
             --nname=network-name --lname=label-name --feat-norm 
-		    --ratio=subspace-ratio --max-iter=max-iter 
+		    --ratio=subspace-ratio --max-iter=max-iter --gmf
 			--gamma=gamma --train-ratio=tr --alg=algorithm] input"
   exit 2
 }
 
-PARSED_ARGUMENTS=$(getopt -a -n run_mc -o T:b:d:M: --long nname:,lname:,max-iter:,gamma:,ratio:,rank:,train-ratio:,alg:,feat-norm -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n run_mc -o T:b:d:M: --long nname:,lname:,max-iter:,gamma:,ratio:,rank:,train-ratio:,alg:,feat-norm,gmf -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   usage
@@ -44,6 +45,7 @@ do
 	--train-ratio) tratio="$2" ; shift 2 ;;
 	--alg)    alg="$2"         ; shift 2 ;;
 	--feat-norm) feat_norm=true; shift 1 ;;
+        --gmf)             gmf=true; shift 1 ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
     # If invalid options were passed, then getopt should have reported an error,
@@ -69,11 +71,12 @@ echo "rank         : $rank"
 echo "feat-norm    : $feat_norm"
 echo "train-ratio  : $tratio"
 echo "algorithm    : $alg"
+echo "gmf          : $gmf"
 echo "Parameters remaining are: $@"
 input=$1
 input_dir=$(dirname "${input}")
 output=$input_dir/embedding_$alg.txt
-matlab -nodisplay -r "addpath(genpath('~/code/lightne')); generate_code('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M); exit"
+matlab -nodisplay -r "addpath(genpath('~/code/lightne')); generate_code('$input', '$output', 'nn', '$network_name', 'T', $T, 'b', $b, 'dim', $dim, 'ratio', $ratio, 'gamma', $gamma, 'max_iter', $max_iter, 'rank', $rank, 'train_ratio', $tratio, 'alg', '$alg', 'M', $M, 'g',$gmf); exit"
 if [ "$feat_norm" = true  ]; then
 python ~/code/lightne/predict.py --C 1 --label $input --matfile-variable-name $label_name --embedding $output --seed 10 --start-train-ratio 90 --stop-train-ratio 90 --num-train-ratio 1 --feat-norm
 else
